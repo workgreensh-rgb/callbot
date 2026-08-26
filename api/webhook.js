@@ -83,14 +83,23 @@ export default async function handler(req, res) {
         `;
         await send(
           chatId,
-          `등록 완료. 앞으로 콜 메시지를 이 채팅으로 받게 됩니다.\n(내 chat_id: ${chatId})`
+          [
+            '등록이 완료되었습니다. 앞으로 콜 메세지를 이 채팅으로 받게 됩니다.',
+            '',
+            '[안내사항]',
+            '안녕하세요 교보증권 이상호 연구원입니다. 조금 더 효율적으로 메세지 송부를 위해서 call bot 등록을 요청 드렸습니다 응해주셔서 감사합니다. 좋은 아이디어를 조금 더 많이 콜하며 업무에 도움이 되도록 보답하겠습니다. 오늘도 좋은하루 되십시오.',
+            '',
+            '* 이 봇은 발송 전용입니다. 이 채팅에 남기신 메시지는 발신자에게 전달되지 않습니다.',
+            '* 문의 및 회신은 발신자에게 직접 연락 부탁드립니다.',
+            '* 수신을 중단하시려면 /stop, 다시 받으시려면 /start 를 입력해주세요.',
+          ].join('\n')
         );
         return res.status(200).send('ok');
       }
 
       if (text.startsWith('/stop')) {
         await sql`DELETE FROM recipients WHERE chat_id = ${chatId}`;
-        await send(chatId, '수신이 해제되었습니다. 다시 받으려면 /start 를 눌러주세요.');
+        await send(chatId, '수신이 중단되었습니다. 다시 받으시려면 /start 를 입력해주세요.');
         return res.status(200).send('ok');
       }
 
@@ -127,7 +136,12 @@ export default async function handler(req, res) {
         chatId,
         isAdmin
           ? '명령어: /list (수신자 목록), /remove chat_id (수신자 삭제)'
-          : '이 봇은 콜 메시지 수신용입니다. /start 등록, /stop 해제'
+          : [
+              '이 봇은 콜 메시지 발송 전용입니다.',
+              '이 채팅에 남기신 메시지는 발신자에게 전달되지 않습니다. 문의는 발신자에게 직접 연락 부탁드립니다.',
+              '',
+              '수신 중단 /stop · 수신 재개 /start',
+            ].join('\n')
       );
       return res.status(200).send('ok');
     }
